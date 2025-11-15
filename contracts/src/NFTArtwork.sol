@@ -19,19 +19,15 @@ contract NFTArtwork is ERC721, ERC721URIStorage, Ownable {
     /**
      * @dev Public function for an artist to mint their artwork.
      * The artist will be the initial owner.
-     * @param tokenURI A string pointing to the artwork metadata.
+     * @param _tokenURI A string pointing to the artwork metadata.
      */
-    function mintArtwork(string memory tokenURI) public returns (uint256) {
+    function mintArtwork(string memory _tokenURI) public returns (uint256) {
         _tokenIdCounter++;
 
         uint256 tokenId = _tokenIdCounter;
         _safeMint(msg.sender, tokenId);
-        _setTokenURI(tokenId, tokenURI);
+        _setTokenURI(tokenId, _tokenURI);
         return tokenId;
-    }
-
-    function _burn(uint256 tokenId) internal override(ERC721) {
-        super._burn(tokenId);
     }
 
     function tokenURI(
