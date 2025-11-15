@@ -201,7 +201,7 @@ contract PredictionMarket is Ownable {
         // 3. Deposit tokens into the vault, minting shares TO THE USER
         // This is the key: vault.deposit() pulls from this contract (which we
         // just funded and approved) but mints shares to the `receiver` (msg.sender).
-        uint256 shares = vault.deposit(_amount, msg.sender);
+        uint256 shares = vault.deposit(_amount, address(this));
 
         // 4. Record the prediction
         Prediction storage p = predictions[marketId][_artworkId][msg.sender];
