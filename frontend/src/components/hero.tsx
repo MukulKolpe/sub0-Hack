@@ -1,4 +1,5 @@
 import { ArrowRight, Sparkles } from "lucide-react";
+import Link from "next/link";
 
 export function Hero() {
   return (
@@ -34,13 +35,13 @@ export function Hero() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a
-              href="/list"
+            <Link
+              href="/gallery"
               className="px-8 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
             >
               Start Predicting
               <ArrowRight className="w-4 h-4" />
-            </a>
+            </Link>
             <button className="px-8 py-3 border border-border hover:bg-card text-foreground font-semibold rounded-lg transition-colors">
               Learn More
             </button>
