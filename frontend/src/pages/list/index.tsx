@@ -144,7 +144,7 @@ export default function List() {
         }),
         contentType: "application/json",
         attributes: [
-          { key: "category", value: "artwork" },
+          { key: "category", value: "artprediction" },
           { key: "version", value: "1.0" },
         ],
         expiresIn: ExpirationTime.fromDays(30), // Entity expires in 30 days

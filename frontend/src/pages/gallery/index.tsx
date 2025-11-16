@@ -5,9 +5,10 @@ import { useState, useEffect } from "react";
 import { Heart, Loader2, XCircle, ImageOff, PiggyBank } from "lucide-react";
 import { useWallet } from "@/context/WalletContext";
 import { ethers } from "ethers";
-// We don't need Arkiv here yet, but useWallet is kept for "like" logic
-// import { ExpirationTime, jsonPayload } from "@arkiv-network/sdk/utils";
-
+import { http, createPublicClient } from "@arkiv-network/sdk";
+import { mendoza } from "@arkiv-network/sdk/chains";
+import { eq } from "@arkiv-network/sdk/query";
+import { jsonToPayload, ExpirationTime } from "@arkiv-network/sdk/utils";
 // --- ABIs and Addresses (Copied from List.tsx) ---
 const NFT_ARTWORK_ADDRESS = "0x5B78fbCB2d94e3B1c7Da8eFaA85eB5a2839F905E";
 const PREDICTION_MARKET_ADDRESS = "0x4216a9c6EB59FcA323169Ef3194783d3dC9b7F23";
@@ -16,6 +17,7 @@ const PREDICTION_MARKET_ADDRESS = "0x4216a9c6EB59FcA323169Ef3194783d3dC9b7F23";
 
 import NFTArtworkABI from "@/utils/abis/NFTArtworkABI.json";
 import PredictionMarketABI from "@/utils/abis/PredictionMarketABI.json";
+import { title } from "process";
 
 // --- Minimal ABI for USDC Token ---
 const USDCABI = [
@@ -51,6 +53,7 @@ export default function Gallery() {
   const [stakedArtworks, setStakedArtworks] = useState<Record<string, boolean>>(
     {}
   );
+  const [isSuccessLike, setIsSuccessLike] = useState<boolean>(false);
   const [isStaking, setIsStaking] = useState<Record<string, boolean>>({});
   // -----------------------------
 
@@ -60,15 +63,6 @@ export default function Gallery() {
 
   // useWallet is ready for when you implement the 'like' logic
   const { client, address } = useWallet();
-
-  async function switchToChain(chainIdHex: string) {
-    // Try switching
-    // @ts-ignore
-    await window.ethereum.request({
-      method: "wallet_switchEthereumChain",
-      params: [{ chainId: chainIdHex }],
-    });
-  }
 
   useEffect(() => {
     // --- ADDED: Event handler for chain changes ---
@@ -288,15 +282,95 @@ export default function Gallery() {
     }
   };
 
+  //@ts-ignore
+  async function switchToChain(chainIdHex: string) {
+    // Try switching
+    // @ts-ignore
+    await window.ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: chainIdHex }],
+    });
+  }
+
   // --- Handle Liking (After Staking) ---
-  const handleLike = (tokenId: string) => {
-    console.log("Like button clicked for token:", tokenId);
+  const handleLike = async (art: Artwork) => {
+    console.log("Like button clicked for token:", art.id);
     // TODO: Implement your Arkiv SDK logic here
     // You will likely need to:
     // 1. Query Arkiv to find the entity associated with this `tokenId`
-    // 2. Get that entity's `entityKey`
-    // 3. Use `client.updateEntity()` or a similar function to update its 'likes'
-    alert(`Liking Token ID: ${tokenId}\n(Implement Arkiv logic in handleLike)`);
+
+    // Create a public client
+    const publicClient = createPublicClient({
+      chain: mendoza, // kaolin is the Arkiv testnet for the purposes of hackathons organized in Buenos Aires during devconnect 2025
+      transport: http(),
+    });
+
+    const query2 = publicClient.buildQuery();
+
+    console.log("Querying Arkiv for artwork entities by creator:", art.artist);
+    const recentArt = await query2
+      .where(eq("category", "artprediction"))
+      .withPayload(true)
+      .fetch();
+
+    console.log("Arkiv query results:", recentArt);
+
+    console.log("Searching for entity", recentArt.entities);
+
+    // Process results
+    for (const entity of recentArt.entities) {
+      console.log("Processing entity:", entity.payload);
+      // if (!entity.payload) continue;
+      const payloadString =
+        typeof entity.payload === "string"
+          ? entity.payload
+          : new TextDecoder().decode(entity.payload);
+      const data = JSON.parse(payloadString);
+
+      console.log("Checking entity:", data);
+
+      if (
+        (data.entity &&
+          Number(data.entity.nftId) === Number(art.id) &&
+          data.entity.creator.toLowerCase() === art.artist.toLowerCase() &&
+          data.entity.imageURI === art.imageURI) ||
+        (Number(data.nftId) === Number(art.id) &&
+          data.creator.toLowerCase() === art.artist.toLowerCase() &&
+          data.imageURI === art.imageURI)
+      ) {
+        console.log("Found matching entity:", entity.key);
+
+        const updatedData = {
+          nftId: data.entity ? data.entity.nftId : data.nftId,
+          creator: data.entity ? data.entity.creator : data.creator,
+          description: data.entity ? data.entity.description : data.description,
+          entityId: data.entity ? data.entity.entityId : data.entityId,
+          imageURI: data.entity ? data.entity.imageURI : data.imageURI,
+          likes: data.entity ? data.entity.likes + 1 : data.likes + 1,
+          title: data.entity ? data.entity.title : data.title,
+        };
+
+        await switchToChain("0xe0087f840"); // Switch to Mendoza chain
+
+        const { txHash } = await client.updateEntity({
+          entityKey: entity.key,
+          payload: jsonToPayload(updatedData),
+          contentType: "application/json",
+          attributes: [
+            { key: "category", value: "artprediction" },
+            { key: "version", value: "1.0" },
+          ],
+          expiresIn: ExpirationTime.fromDays(30),
+        });
+
+        console.log("Update entity response:", txHash);
+
+        if (txHash) {
+          console.log("Successfully liked artwork! TxHash:", txHash);
+          setIsSuccessLike(true);
+        }
+      }
+    }
   };
 
   const renderButton = (art: Artwork) => {
@@ -306,11 +380,12 @@ export default function Gallery() {
     if (hasStaked) {
       return (
         <button
-          onClick={() => handleLike(art.id)}
+          onClick={() => handleLike(art)}
           className="w-full mt-4 bg-primary/10 text-primary font-semibold py-2.5 px-4 rounded-lg transition-all duration-300 hover:bg-primary/20 flex items-center justify-center gap-2"
+          disabled={isSuccessLike}
         >
           <Heart className="w-4 h-4" />
-          Like
+          {isSuccessLike ? "Liked!" : "Like"}
         </button>
       );
     }
