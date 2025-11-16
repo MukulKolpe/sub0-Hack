@@ -339,9 +339,7 @@ export default function Gallery() {
             Artwork Gallery
           </h1>
           <p className="text-lg text-muted-foreground">
-            {currentMarketId
-              ? `Showing submissions for Market #${currentMarketId}`
-              : "Loading current market..."}
+            {currentMarketId ? `` : "Loading current market..."}
           </p>
           <p className="text-lg text-muted-foreground">
             Stake on your favorite artwork for a chance to win!
