@@ -88,8 +88,8 @@ contract PredictionMarket is Ownable {
     
      */
     constructor() Ownable(msg.sender) {
-        nftArtwork = IERC721(0x7aD0A9dB054101be9428fa89bB1194506586D1aD);
-        usdc = IERC20(0xd0A9c6e7FF012F22Ba52038F9727b50e16466176);
+        nftArtwork = IERC721(0x5B78fbCB2d94e3B1c7Da8eFaA85eB5a2839F905E);
+        usdc = IERC20(0xE2E3899AcAD6c4F6F1db0702D49d8dA75AE813bb);
         currentMarketId = 0;
     }
 
@@ -218,10 +218,6 @@ contract PredictionMarket is Ownable {
         uint256 marketId = currentMarketId;
         Market storage market = markets[marketId];
         require(market.isOpen, "Market not open");
-        require(
-            block.timestamp >= market.predictionWindowEnd,
-            "Prediction window not closed"
-        );
 
         market.isOpen = false;
         emit MarketClosed(marketId);

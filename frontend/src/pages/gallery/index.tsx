@@ -8,8 +8,8 @@ import { ethers } from "ethers";
 // import { ExpirationTime, jsonPayload } from "@arkiv-network/sdk/utils";
 
 // --- ABIs and Addresses (Copied from List.tsx) ---
-const NFT_ARTWORK_ADDRESS = "0x7aD0A9dB054101be9428fa89bB1194506586D1aD";
-const PREDICTION_MARKET_ADDRESS = "0x66E1e28A6E6BD3a4c30a53C964e65ADa11Cf9EB8";
+const NFT_ARTWORK_ADDRESS = "0x5B78fbCB2d94e3B1c7Da8eFaA85eB5a2839F905E";
+const PREDICTION_MARKET_ADDRESS = "0x4216a9c6EB59FcA323169Ef3194783d3dC9b7F23";
 
 // --- Embedded ABI Definitions ---
 
