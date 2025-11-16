@@ -85,12 +85,11 @@ contract PredictionMarket is Ownable {
 
     /**
      * @dev Deploys the main contract.
-     * @param _nftArtwork Address of the deployed NFTArtwork contract.
-     * @param _usdc Address of the deployed usdc contract.
+    
      */
-    constructor(address _nftArtwork, address _usdc) Ownable(msg.sender) {
-        nftArtwork = IERC721(_nftArtwork);
-        usdc = IERC20(_usdc);
+    constructor() Ownable(msg.sender) {
+        nftArtwork = IERC721(0x7aD0A9dB054101be9428fa89bB1194506586D1aD);
+        usdc = IERC20(0xd0A9c6e7FF012F22Ba52038F9727b50e16466176);
         currentMarketId = 0;
     }
 
