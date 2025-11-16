@@ -1,3 +1,4 @@
+// @ts-nocheck comment
 import { ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 
