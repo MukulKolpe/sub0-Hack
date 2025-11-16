@@ -42,7 +42,7 @@ contract PredictionMarketTest is Test {
         nftArtwork = new NFTArtwork();
 
         // Deploy Market
-        market = new PredictionMarket(address(nftArtwork), address(usdc));
+        market = new PredictionMarket();
 
         // === Fund Users ===
         // Fund predictors from the manager's initial mint
