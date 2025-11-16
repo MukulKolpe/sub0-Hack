@@ -22,11 +22,9 @@ export function Header() {
           className="flex items-center gap-2 hover:opacity-80 transition-opacity"
         >
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-            <span className="text-xl font-bold text-primary-foreground">
-              S0
-            </span>
+            <span className="text-l font-bold text-primary-foreground">S0</span>
           </div>
-          <span className="text-xl font-bold text-foreground">Artcast</span>
+          <span className="text-2xl font-bold text-foreground">Artcast</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">
